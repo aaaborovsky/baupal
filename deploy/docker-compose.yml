@@ -1,0 +1,38 @@
+version: '3.6'
+
+services:
+  db:
+    container_name: baupal-db
+    image: postgres:15.1
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=baupal
+      - POSTGRES_USER=baupal
+      - POSTGRES_PASSWORD=quae7aiLahf8
+    volumes:
+      # scripts
+      - ./postgres-entrypoint:/docker-entrypoint-initdb.d
+      # named volumes
+      - baupal-dbdata:/var/lib/postgresql/data
+
+  back:
+    restart: always
+    container_name: baupal-back
+    build:
+      context: ../back
+      args:
+        - PORT=3000
+    environment:
+      - PORT=3000
+      - DB_HOST=db
+      - DB_NAME=baupal
+      - DB_PASSWORD=quae7aiLahf8
+      - DB_PORT=5432
+      - DB_USER=baupal
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+volumes:
+  baupal-dbdata:
